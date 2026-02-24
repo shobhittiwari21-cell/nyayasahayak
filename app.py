@@ -175,7 +175,7 @@ elif tool_choice == "4. Bail Application Writer":
 # ------------------------------------------
 # TOOL 5: Police Complaint (FIR) Drafter
 # ------------------------------------------
-elif tool_choice == "5. Police Complaint (FIR) Drafter":
+elif tool_choice == "1. Police Complaint (FIR) Drafter":
     st.write("Convert a rough story into a formal SHO complaint with BNS sections.")
     incident = st.text_area("Describe what happened in plain English or Hindi:", height=150)
     
@@ -196,7 +196,7 @@ elif tool_choice == "5. Police Complaint (FIR) Drafter":
 # ------------------------------------------
 # TOOL 6: Cheque Bounce Notice (Sec 138)
 # ------------------------------------------
-elif tool_choice == "6. Cheque Bounce Notice (Sec 138)":
+elif tool_choice == "2. Cheque Bounce Notice (Sec 138)":
     st.write("Draft a strict 15-day legal notice under the Negotiable Instruments Act.")
     sender = st.text_input("Sender Name:")
     defaulter = st.text_input("Defaulter Name:")
@@ -220,7 +220,7 @@ elif tool_choice == "6. Cheque Bounce Notice (Sec 138)":
 # ------------------------------------------
 # TOOL 7: UP Rent Agreement Maker
 # ------------------------------------------
-elif tool_choice == "7. UP Rent Agreement Maker":
+elif tool_choice == "3. UP Rent Agreement Maker":
     st.write("Generate an 11-month tenancy contract compliant with UP laws.")
     col1, col2 = st.columns(2)
     with col1:
@@ -247,7 +247,7 @@ elif tool_choice == "7. UP Rent Agreement Maker":
 # ------------------------------------------
 # TOOL 8: Traffic Challan Fighter
 # ------------------------------------------
-elif tool_choice == "8. Traffic Challan Fighter":
+elif tool_choice == "4. Traffic Challan Fighter":
     st.write("Draft an application to the Traffic Magistrate to reduce or waive a fine.")
     vehicle = st.text_input("Vehicle Number:")
     offense = st.text_input("Offense Type (e.g., No Parking, Speeding):")
@@ -271,3 +271,4 @@ elif tool_choice == "8. Traffic Challan Fighter":
 st.markdown("---")
 
 st.caption("⚠️ **Legal Disclaimer:** This platform provides automated drafts using Artificial Intelligence for educational and reference purposes only. It does not constitute formal legal advice. Always consult a registered advocate before submitting any document to a Court of Law or Police Station.")
+
