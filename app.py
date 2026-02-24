@@ -18,7 +18,7 @@ except Exception:
     st.stop()
 
 # ==========================================
-# 2. THE HEADER & DUAL-LANGUAGE TOGGLES
+# 2. THE HEADER & UI LANGUAGE TOGGLE
 # ==========================================
 st.markdown("""
     <div style='text-align: center; padding: 15px;'>
@@ -29,12 +29,8 @@ st.markdown("""
 
 st.info("**Powered by the legal expertise of Adv. Shobhit Tiwari** \nAllahabad High Court, Lucknow Bench | 📞 +91 9795971160")
 
-# The Dual-Language Engine
-col1, col2 = st.columns(2)
-with col1:
-    ui_lang = st.radio("Interface Language / इंटरफ़ेस भाषा:", ["English", "Hindi"])
-with col2:
-    doc_lang = st.radio("Document Output / दस्तावेज़ की भाषा:", ["English", "Hindi"])
+# Interface Language ONLY at the top
+lang = st.radio("Interface Language / इंटरफ़ेस भाषा:", ["English", "Hindi"], horizontal=True)
 
 # ==========================================
 # 3. MASTER TRANSLATION DICTIONARY
@@ -73,7 +69,7 @@ hi = {
     "btn_analyze": "विश्लेषण करें और प्रश्न पूछें 🔍", "btn_draft": "अंतिम ड्राफ्ट तैयार करें 📄", "btn_reset": "शुरुआत से शुरू करें 🔄", "req": "परामर्श का अनुरोध करें"
 }
 
-ui = en if ui_lang == "English" else hi
+ui = en if lang == "English" else hi
 
 # ==========================================
 # 4. NAVIGATION & GLOBAL VARIABLES
@@ -102,7 +98,7 @@ if category == ui["tabs"][0]:
             if st.button(ui["btn_analyze"]):
                 if u_story:
                     with st.spinner("Analyzing incident..."):
-                        q_prompt = f"ROLE: Veteran Police IO in UP. TASK: Read this raw story: '{u_story}'. CONSTRAINTS: Do NOT draft the FIR yet. Identify critical missing facts required for a BNS 2023 FIR. OUTPUT: Ask strictly necessary investigative questions (minimum 1, maximum 5) in {ui_lang} to extract these facts. Number your questions."
+                        q_prompt = f"ROLE: Veteran Police IO in UP. TASK: Read this raw story: '{u_story}'. CONSTRAINTS: Identify critical missing facts required for a BNS 2023 FIR. OUTPUT: Ask strictly necessary investigative questions (minimum 1, maximum 5). Provide EACH question in BOTH English and Hindi (e.g., '1. [English question]? / [Hindi question]?')."
                         st.session_state.fir_qs = model.generate_content(q_prompt).text
                         st.session_state.fir_story = u_story
                         st.session_state.fir_step = 2
@@ -110,11 +106,18 @@ if category == ui["tabs"][0]:
         elif st.session_state.fir_step == 2:
             st.success(st.session_state.fir_qs)
             u_answers = st.text_area("Provide Clarifications / स्पष्टीकरण दें:")
-            if st.button(ui["btn_draft"]):
-                with st.spinner("Drafting official complaint..."):
-                    prompt = f"ROLE: Elite Criminal Defense Counsel. TASK: Draft a formal FIR. CONTEXT: Story: '{st.session_state.fir_story}'. Clarifications: '{u_answers}'. CONSTRAINTS: Apply BNS 2023. Do not invent fake facts. OUTPUT: Formal police complaint structure in {doc_lang}."
-                    st.write(model.generate_content(prompt).text + watermark)
-            if st.button(ui["btn_reset"]): st.session_state.fir_step = 1; st.rerun()
+            
+            # Document Language Selection Before Drafting
+            doc_lang = st.radio("Select Output Language for Final Document / दस्तावेज़ की भाषा चुनें:", ["English", "Hindi"], horizontal=True, key="doc_fir")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button(ui["btn_draft"]):
+                    with st.spinner("Drafting official complaint..."):
+                        prompt = f"ROLE: Elite Criminal Defense Counsel. TASK: Draft a formal FIR. CONTEXT: Story: '{st.session_state.fir_story}'. Clarifications: '{u_answers}'. CONSTRAINTS: Apply BNS 2023. Do not invent fake facts. OUTPUT: Formal police complaint structure in {doc_lang}."
+                        st.write(model.generate_content(prompt).text + watermark)
+            with col2:
+                if st.button(ui["btn_reset"]): st.session_state.fir_step = 1; st.rerun()
 
     # --- RENT AGREEMENT ---
     elif "Rent" in tool or "किरायानामा" in tool:
@@ -127,7 +130,7 @@ if category == ui["tabs"][0]:
             if st.button(ui["btn_analyze"]):
                 if u_story:
                     with st.spinner("Reviewing lease terms..."):
-                        q_prompt = f"ROLE: Civil Real Estate Lawyer in UP. TASK: Review rent details: '{u_story}'. CONSTRAINTS: Identify missing terms (e.g., exact address, lock-in period). OUTPUT: Ask (1 to 5) clarifying questions in {ui_lang}."
+                        q_prompt = f"ROLE: Civil Real Estate Lawyer in UP. TASK: Review rent details: '{u_story}'. CONSTRAINTS: Identify missing terms (e.g., exact address, lock-in period). OUTPUT: Ask (1 to 5) clarifying questions. Provide EACH question in BOTH English and Hindi."
                         st.session_state.ra_qs = model.generate_content(q_prompt).text
                         st.session_state.ra_story = u_story
                         st.session_state.ra_step = 2
@@ -135,11 +138,16 @@ if category == ui["tabs"][0]:
         elif st.session_state.ra_step == 2:
             st.success(st.session_state.ra_qs)
             u_answers = st.text_area("Your Answers:")
-            if st.button(ui["btn_draft"]):
-                with st.spinner("Drafting Agreement..."):
-                    prompt = f"ROLE: Civil Lawyer. TASK: Draft an 11-month Lease Agreement. CONTEXT: Initial: '{st.session_state.ra_story}', Added: '{u_answers}'. CONSTRAINTS: Adhere to UP tenancy laws. Include lock-in, 1-month notice. OUTPUT: Numbered legal contract format in {doc_lang}."
-                    st.write(model.generate_content(prompt).text + watermark)
-            if st.button(ui["btn_reset"]): st.session_state.ra_step = 1; st.rerun()
+            doc_lang = st.radio("Select Output Language for Final Document:", ["English", "Hindi"], horizontal=True, key="doc_ra")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button(ui["btn_draft"]):
+                    with st.spinner("Drafting Agreement..."):
+                        prompt = f"ROLE: Civil Lawyer. TASK: Draft an 11-month Lease Agreement. CONTEXT: Initial: '{st.session_state.ra_story}', Added: '{u_answers}'. CONSTRAINTS: Adhere to UP tenancy laws. Include lock-in, 1-month notice. OUTPUT: Numbered legal contract format in {doc_lang}."
+                        st.write(model.generate_content(prompt).text + watermark)
+            with col2:
+                if st.button(ui["btn_reset"]): st.session_state.ra_step = 1; st.rerun()
 
     # --- TENANT EVICTION ---
     elif "Eviction" in tool or "बेदखली" in tool:
@@ -152,7 +160,7 @@ if category == ui["tabs"][0]:
             if st.button(ui["btn_analyze"]):
                 if u_story:
                     with st.spinner("Analyzing eviction grounds..."):
-                        q_prompt = f"ROLE: Property Dispute Advocate. TASK: Read eviction reason: '{u_story}'. CONSTRAINTS: Identify missing legal facts (e.g., exact months of default, specific damages). OUTPUT: Ask (1 to 5) questions in {ui_lang}."
+                        q_prompt = f"ROLE: Property Dispute Advocate. TASK: Read eviction reason: '{u_story}'. CONSTRAINTS: Identify missing legal facts. OUTPUT: Ask (1 to 5) questions. Provide EACH question in BOTH English and Hindi."
                         st.session_state.ev_qs = model.generate_content(q_prompt).text
                         st.session_state.ev_story = u_story
                         st.session_state.ev_step = 2
@@ -160,11 +168,16 @@ if category == ui["tabs"][0]:
         elif st.session_state.ev_step == 2:
             st.success(st.session_state.ev_qs)
             u_answers = st.text_area("Your Answers:")
-            if st.button(ui["btn_draft"]):
-                with st.spinner("Drafting Eviction Notice..."):
-                    prompt = f"ROLE: Property Advocate. TASK: Draft a 30-day statutory eviction notice. CONTEXT: Base: '{st.session_state.ev_story}', Extra: '{u_answers}'. CONSTRAINTS: Cite UP Rent Control laws. Demand vacating. OUTPUT: Stern legal notice in {doc_lang}."
-                    st.write(model.generate_content(prompt).text + watermark)
-            if st.button(ui["btn_reset"]): st.session_state.ev_step = 1; st.rerun()
+            doc_lang = st.radio("Select Output Language for Final Document:", ["English", "Hindi"], horizontal=True, key="doc_ev")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button(ui["btn_draft"]):
+                    with st.spinner("Drafting Eviction Notice..."):
+                        prompt = f"ROLE: Property Advocate. TASK: Draft a 30-day statutory eviction notice. CONTEXT: Base: '{st.session_state.ev_story}', Extra: '{u_answers}'. CONSTRAINTS: Cite UP Rent Control laws. OUTPUT: Stern legal notice in {doc_lang}."
+                        st.write(model.generate_content(prompt).text + watermark)
+            with col2:
+                if st.button(ui["btn_reset"]): st.session_state.ev_step = 1; st.rerun()
 
     # --- CHEQUE BOUNCE ---
     elif "138" in tool or "बाउंस" in tool:
@@ -177,7 +190,7 @@ if category == ui["tabs"][0]:
             if st.button(ui["btn_analyze"]):
                 if u_story:
                     with st.spinner("Checking statutory requirements..."):
-                        q_prompt = f"ROLE: Corporate Litigator. TASK: Review cheque details: '{u_story}'. CONSTRAINTS: Identify missing NI Act requirements (e.g., exact cheque date, date of bank return memo, reason for bounce). OUTPUT: Ask (1 to 5) necessary questions in {ui_lang}."
+                        q_prompt = f"ROLE: Corporate Litigator. TASK: Review cheque details: '{u_story}'. CONSTRAINTS: Identify missing NI Act requirements. OUTPUT: Ask (1 to 5) necessary questions. Provide EACH question in BOTH English and Hindi."
                         st.session_state.cb_qs = model.generate_content(q_prompt).text
                         st.session_state.cb_story = u_story
                         st.session_state.cb_step = 2
@@ -185,11 +198,16 @@ if category == ui["tabs"][0]:
         elif st.session_state.cb_step == 2:
             st.success(st.session_state.cb_qs)
             u_answers = st.text_area("Your Answers:")
-            if st.button(ui["btn_draft"]):
-                with st.spinner("Drafting Legal Notice..."):
-                    prompt = f"ROLE: Corporate Litigator. TASK: Draft Sec 138 NI Act notice. CONTEXT: Base: '{st.session_state.cb_story}', Added: '{u_answers}'. CONSTRAINTS: Explicitly state the 15-day statutory warning for criminal proceedings. OUTPUT: Formal legal notice in {doc_lang}."
-                    st.write(model.generate_content(prompt).text + watermark)
-            if st.button(ui["btn_reset"]): st.session_state.cb_step = 1; st.rerun()
+            doc_lang = st.radio("Select Output Language for Final Document:", ["English", "Hindi"], horizontal=True, key="doc_cb")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button(ui["btn_draft"]):
+                    with st.spinner("Drafting Legal Notice..."):
+                        prompt = f"ROLE: Corporate Litigator. TASK: Draft Sec 138 NI Act notice. CONTEXT: Base: '{st.session_state.cb_story}', Added: '{u_answers}'. CONSTRAINTS: Explicitly state the 15-day statutory warning for criminal proceedings. OUTPUT: Formal legal notice in {doc_lang}."
+                        st.write(model.generate_content(prompt).text + watermark)
+            with col2:
+                if st.button(ui["btn_reset"]): st.session_state.cb_step = 1; st.rerun()
 
     # --- MSME RECOVERY ---
     elif "MSME" in tool:
@@ -202,7 +220,7 @@ if category == ui["tabs"][0]:
             if st.button(ui["btn_analyze"]):
                 if u_story:
                     with st.spinner("Analyzing MSME provisions..."):
-                        q_prompt = f"ROLE: Corporate Advocate. TASK: Review MSME dispute: '{u_story}'. CONSTRAINTS: Identify missing facts (e.g., MSME Udyam Registration number, invoice dates). OUTPUT: Ask (1 to 5) questions in {ui_lang}."
+                        q_prompt = f"ROLE: Corporate Advocate. TASK: Review MSME dispute: '{u_story}'. CONSTRAINTS: Identify missing facts. OUTPUT: Ask (1 to 5) questions. Provide EACH question in BOTH English and Hindi."
                         st.session_state.msme_qs = model.generate_content(q_prompt).text
                         st.session_state.msme_story = u_story
                         st.session_state.msme_step = 2
@@ -210,11 +228,16 @@ if category == ui["tabs"][0]:
         elif st.session_state.msme_step == 2:
             st.success(st.session_state.msme_qs)
             u_answers = st.text_area("Your Answers:")
-            if st.button(ui["btn_draft"]):
-                with st.spinner("Drafting Recovery Notice..."):
-                    prompt = f"ROLE: Corporate Advocate. TASK: Draft MSME payment recovery notice. CONTEXT: Base: '{st.session_state.msme_story}', Added: '{u_answers}'. CONSTRAINTS: Invoke MSMED Act 2006 (compound interest). Strict 15-day deadline. OUTPUT: Formal notice in {doc_lang}."
-                    st.write(model.generate_content(prompt).text + watermark)
-            if st.button(ui["btn_reset"]): st.session_state.msme_step = 1; st.rerun()
+            doc_lang = st.radio("Select Output Language for Final Document:", ["English", "Hindi"], horizontal=True, key="doc_msme")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button(ui["btn_draft"]):
+                    with st.spinner("Drafting Recovery Notice..."):
+                        prompt = f"ROLE: Corporate Advocate. TASK: Draft MSME payment recovery notice. CONTEXT: Base: '{st.session_state.msme_story}', Added: '{u_answers}'. CONSTRAINTS: Invoke MSMED Act 2006 (compound interest). Strict 15-day deadline. OUTPUT: Formal notice in {doc_lang}."
+                        st.write(model.generate_content(prompt).text + watermark)
+            with col2:
+                if st.button(ui["btn_reset"]): st.session_state.msme_step = 1; st.rerun()
 
     # --- TRAFFIC CHALLAN ---
     elif "Traffic" in tool or "ट्रैफिक" in tool:
@@ -227,7 +250,7 @@ if category == ui["tabs"][0]:
             if st.button(ui["btn_analyze"]):
                 if u_story:
                     with st.spinner("Analyzing grounds for compounding..."):
-                        q_prompt = f"ROLE: Traffic Court Advocate. TASK: Review challan: '{u_story}'. CONSTRAINTS: Identify missing facts (e.g., challan number, date, compelling reason/hardship for requesting waiver). OUTPUT: Ask (1 to 5) questions in {ui_lang}."
+                        q_prompt = f"ROLE: Traffic Court Advocate. TASK: Review challan: '{u_story}'. CONSTRAINTS: Identify missing facts. OUTPUT: Ask (1 to 5) questions. Provide EACH question in BOTH English and Hindi."
                         st.session_state.tc_qs = model.generate_content(q_prompt).text
                         st.session_state.tc_story = u_story
                         st.session_state.tc_step = 2
@@ -235,11 +258,16 @@ if category == ui["tabs"][0]:
         elif st.session_state.tc_step == 2:
             st.success(st.session_state.tc_qs)
             u_answers = st.text_area("Your Answers:")
-            if st.button(ui["btn_draft"]):
-                with st.spinner("Drafting Application..."):
-                    prompt = f"ROLE: Traffic Court Advocate. TASK: Draft compounding/waiver application. CONTEXT: Base: '{st.session_state.tc_story}', Extra: '{u_answers}'. CONSTRAINTS: Address to Traffic Magistrate/Lok Adalat. Tone should be respectful. OUTPUT: Formal application in {doc_lang}."
-                    st.write(model.generate_content(prompt).text + watermark)
-            if st.button(ui["btn_reset"]): st.session_state.tc_step = 1; st.rerun()
+            doc_lang = st.radio("Select Output Language for Final Document:", ["English", "Hindi"], horizontal=True, key="doc_tc")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button(ui["btn_draft"]):
+                    with st.spinner("Drafting Application..."):
+                        prompt = f"ROLE: Traffic Court Advocate. TASK: Draft compounding/waiver application. CONTEXT: Base: '{st.session_state.tc_story}', Extra: '{u_answers}'. CONSTRAINTS: Address to Traffic Magistrate/Lok Adalat. OUTPUT: Formal application in {doc_lang}."
+                        st.write(model.generate_content(prompt).text + watermark)
+            with col2:
+                if st.button(ui["btn_reset"]): st.session_state.tc_step = 1; st.rerun()
 
 # ==========================================
 # 6. LEGAL PROFESSIONAL TOOLS
@@ -259,7 +287,7 @@ elif category == ui["tabs"][1]:
             if st.button(ui["btn_analyze"]):
                 if u_story:
                     with st.spinner("Analyzing Bail Grounds..."):
-                        q_prompt = f"ROLE: Senior Criminal Defense Advocate. TASK: Review bail request: '{u_story}'. CONSTRAINTS: Identify missing facts (e.g., date of arrest, applicant's specific role, parity with co-accused). OUTPUT: Ask (1 to 5) sharp questions in {ui_lang} to build grounds."
+                        q_prompt = f"ROLE: Senior Criminal Defense Advocate. TASK: Review bail request: '{u_story}'. CONSTRAINTS: Identify missing facts (e.g., date of arrest, applicant's specific role). OUTPUT: Ask (1 to 5) sharp questions. Provide EACH question in BOTH English and Hindi."
                         st.session_state.bl_qs = model.generate_content(q_prompt).text
                         st.session_state.bl_story = u_story
                         st.session_state.bl_step = 2
@@ -267,11 +295,16 @@ elif category == ui["tabs"][1]:
         elif st.session_state.bl_step == 2:
             st.success(st.session_state.bl_qs)
             u_answers = st.text_area("Your Answers:")
-            if st.button(ui["btn_draft"]):
-                with st.spinner("Structuring Bail Arguments..."):
-                    prompt = f"ROLE: Top-tier Criminal Defense Advocate. TASK: Draft Regular Bail App under Sec 483 BNSS. CONTEXT: Base: '{st.session_state.bl_story}', Extra: '{u_answers}'. CONSTRAINTS: Address to District & Sessions Judge. Argue the 'Triple Test'. OUTPUT: Traditional court drafting in {doc_lang}."
-                    st.write(model.generate_content(prompt).text + watermark)
-            if st.button(ui["btn_reset"]): st.session_state.bl_step = 1; st.rerun()
+            doc_lang = st.radio("Select Output Language for Final Document:", ["English", "Hindi"], horizontal=True, key="doc_bl")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button(ui["btn_draft"]):
+                    with st.spinner("Structuring Bail Arguments..."):
+                        prompt = f"ROLE: Top-tier Criminal Defense Advocate. TASK: Draft Regular Bail App under Sec 483 BNSS. CONTEXT: Base: '{st.session_state.bl_story}', Extra: '{u_answers}'. CONSTRAINTS: Address to District & Sessions Judge. Argue the 'Triple Test'. OUTPUT: Traditional court drafting in {doc_lang}."
+                        st.write(model.generate_content(prompt).text + watermark)
+            with col2:
+                if st.button(ui["btn_reset"]): st.session_state.bl_step = 1; st.rerun()
 
     # --- AFFIDAVIT DRAFTER ---
     elif "Affidavit" in tool or "हलफनामा" in tool:
@@ -284,7 +317,7 @@ elif category == ui["tabs"][1]:
             if st.button(ui["btn_analyze"]):
                 if u_story:
                     with st.spinner("Reviewing case structure..."):
-                        q_prompt = f"ROLE: High Court Counsel. TASK: Review affidavit request: '{u_story}'. CONSTRAINTS: Identify missing facts (e.g., Deponent's full name/age/address, para-wise rebuttals). OUTPUT: Ask (1 to 5) questions in {ui_lang}."
+                        q_prompt = f"ROLE: High Court Counsel. TASK: Review affidavit request: '{u_story}'. CONSTRAINTS: Identify missing facts. OUTPUT: Ask (1 to 5) questions. Provide EACH question in BOTH English and Hindi."
                         st.session_state.af_qs = model.generate_content(q_prompt).text
                         st.session_state.af_story = u_story
                         st.session_state.af_step = 2
@@ -292,17 +325,23 @@ elif category == ui["tabs"][1]:
         elif st.session_state.af_step == 2:
             st.success(st.session_state.af_qs)
             u_answers = st.text_area("Your Answers:")
-            if st.button(ui["btn_draft"]):
-                with st.spinner("Formatting Affidavit..."):
-                    prompt = f"ROLE: High Court Counsel. TASK: Draft Counter-Affidavit. CONTEXT: Base: '{st.session_state.af_story}', Facts: '{u_answers}'. CONSTRAINTS: Adhere to archaic legal phrasing of the Allahabad High Court, Lucknow Bench. OUTPUT: Numbered paragraphs in {doc_lang}."
-                    st.write(model.generate_content(prompt).text + watermark)
-            if st.button(ui["btn_reset"]): st.session_state.af_step = 1; st.rerun()
+            doc_lang = st.radio("Select Output Language for Final Document:", ["English", "Hindi"], horizontal=True, key="doc_af")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button(ui["btn_draft"]):
+                    with st.spinner("Formatting Affidavit..."):
+                        prompt = f"ROLE: High Court Counsel. TASK: Draft Counter-Affidavit. CONTEXT: Base: '{st.session_state.af_story}', Facts: '{u_answers}'. CONSTRAINTS: Adhere to archaic legal phrasing of the Allahabad High Court, Lucknow Bench. OUTPUT: Numbered paragraphs in {doc_lang}."
+                        st.write(model.generate_content(prompt).text + watermark)
+            with col2:
+                if st.button(ui["btn_reset"]): st.session_state.af_step = 1; st.rerun()
 
     # --- CASE SUMMARIZER ---
     elif "Summarizer" in tool or "सारांश" in tool:
         st.subheader(tool)
         st.info("Extract the core Issue, Facts, Ratio Decidendi, and Precedents from lengthy judgments.", icon="ℹ️")
         judgment = st.text_area("Paste Judgment Text:", height=200)
+        doc_lang = st.radio("Select Output Language:", ["English", "Hindi"], horizontal=True, key="doc_sum")
         if st.button("Generate Summary"):
             with st.spinner("Analyzing Ratio Decidendi..."):
                 prompt = f"ROLE: Brilliant Judicial Clerk at Supreme Court. TASK: Deep legal analysis of judgment: '{judgment}'. CONSTRAINTS: Strip procedural fluff. Output strictly using 5 headers: 1. Core Legal Issue, 2. Material Facts, 3. Ratio Decidendi, 4. Key Precedents, 5. Final Verdict. OUTPUT: Professional legal brief in {doc_lang}."
@@ -313,6 +352,7 @@ elif category == ui["tabs"][1]:
         st.subheader(tool)
         st.info("Instantly map old Indian Penal Code (IPC) sections to the exact matching provisions of the new BNS 2023.", icon="ℹ️")
         sec = st.text_input("Enter IPC Section / Offense Name:")
+        doc_lang = st.radio("Select Output Language:", ["English", "Hindi"], horizontal=True, key="doc_ipc")
         if st.button("Convert to BNS 2023"):
             prompt = f"ROLE: Indian Law Professor. TASK: Map IPC Section {sec} to the exact new BNS 2023 section. CONSTRAINTS: Be 100% accurate regarding the new statute. OUTPUT: Direct section mapping and a 2-line explanation in {doc_lang}."
             st.success(model.generate_content(prompt).text)
@@ -345,8 +385,8 @@ st.divider()
 # 8. GLOBAL CRM & LEAD CAPTURE
 # ==========================================
 if category == ui["tabs"][0]:
-    st.markdown("### 👨‍⚖️ Need Formal Representation?" if ui_lang == "English" else "### 👨‍⚖️ औपचारिक प्रतिनिधित्व की आवश्यकता है?")
-    st.write("Drafts generated by AI are for reference only. For official court filing or case strategy, schedule a consultation." if ui_lang == "English" else "आधिकारिक कोर्ट फाइलिंग या केस रणनीति के लिए, हमारे मुख्य कानूनी सलाहकार के साथ परामर्श बुक करें।")
+    st.markdown("### 👨‍⚖️ Need Formal Representation?" if lang == "English" else "### 👨‍⚖️ औपचारिक प्रतिनिधित्व की आवश्यकता है?")
+    st.write("Drafts generated by AI are for reference only. For official court filing or case strategy, schedule a consultation." if lang == "English" else "आधिकारिक कोर्ट फाइलिंग या केस रणनीति के लिए, हमारे मुख्य कानूनी सलाहकार के साथ परामर्श बुक करें।")
 
     with st.form("intake_form", clear_on_submit=True):
         client_name = st.text_input("Full Name / पूरा नाम:")
@@ -356,9 +396,9 @@ if category == ui["tabs"][0]:
         submitted = st.form_submit_button(ui["req"])
         if submitted:
             if client_name and client_phone:
-                st.success(f"Request Received. Adv. Shobhit Tiwari's office will contact {client_name} at {client_phone} shortly." if ui_lang == "English" else f"अनुरोध प्राप्त हुआ। अधिवक्ता शोभित तिवारी का कार्यालय जल्द ही {client_phone} पर {client_name} से संपर्क करेगा।")
+                st.success(f"Request Received. Adv. Shobhit Tiwari's office will contact {client_name} at {client_phone} shortly." if lang == "English" else f"अनुरोध प्राप्त हुआ। अधिवक्ता शोभित तिवारी का कार्यालय जल्द ही {client_phone} पर {client_name} से संपर्क करेगा।")
             else:
-                st.error("Please provide both your name and contact number." if ui_lang == "English" else "कृपया अपना नाम और संपर्क नंबर दोनों प्रदान करें।")
+                st.error("Please provide both your name and contact number." if lang == "English" else "कृपया अपना नाम और संपर्क नंबर दोनों प्रदान करें।")
 
 # ==========================================
 # 9. LOCAL SEO & LEGAL FOOTER
