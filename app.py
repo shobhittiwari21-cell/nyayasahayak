@@ -65,7 +65,7 @@ def generate_legal_document(prompt):
             st.download_button(
                 label="📥 Download Draft as Text File",
                 data=response.text,
-                file_name="Legal_Draft_NyayaSahayak.txt",
+                file_="Legal_Draft_NyayaSahayak.txt",
                 mime="text/plain"
             )
         except Exception as e:
@@ -103,7 +103,7 @@ if tool_choice == "1. Case Law Summarizer":
 # ------------------------------------------
 elif tool_choice == "2. IPC to BNS Converter":
     st.write("Stop searching the bare acts. Instantly map old IPC sections to the new BNS 2023.")
-    old_law = st.text_input("Enter Old IPC Section or Offense Name (e.g., '420' or 'Murder'):")
+    old_law = st.text_input("Enter Old IPC Section or Offense  (e.g., '420' or 'Murder'):")
     
     if st.button("Find BNS Section 🚀"):
         if old_law:
@@ -126,7 +126,7 @@ elif tool_choice == "3. Lucknow HC Affidavit Drafter":
     col1, col2 = st.columns(2)
     with col1:
         case_title = st.text_input("Case Title (e.g., Ram vs State of UP):")
-        deponent_name = st.text_input("Deponent Name:")
+        deponent_ = st.text_input("Deponent :")
     with col2:
         deponent_age = st.text_input("Deponent Age:")
         deponent_address = st.text_input("Deponent Address:")
@@ -142,7 +142,7 @@ elif tool_choice == "3. Lucknow HC Affidavit Drafter":
             
             Details:
             Case: {case_title}
-            Deponent: {deponent_name}, Age: {deponent_age}, Address: {deponent_address}
+            Deponent: {deponent_}, Age: {deponent_age}, Address: {deponent_address}
             Facts to include: {facts}
             """
             generate_legal_document(hidden_prompt)
@@ -185,7 +185,7 @@ elif tool_choice == "5. Police Complaint (FIR) Drafter":
             Role: Legal aid assistant specializing in Indian Police procedures.
             Task: Translate this plain-language story into a formal written complaint addressed to the Station House Officer (SHO).
             Rules: Identify and explicitly list the potential BNS (Bharatiya Nyaya Sanhita) sections at the top. 
-            Append text at the bottom: 'Drafting an FIR is step one. If the police refuse to register this, contact Adv. [Your Name] to file an application under Section 175(3) BNSS in court.'
+            Append text at the bottom: 'Drafting an FIR is step one. If the police refuse to register this, contact Adv. Shobhit Tiwari to file an application under Section 175(3) BNSS in court.'
             
             Incident: {incident}
             """
@@ -198,8 +198,8 @@ elif tool_choice == "5. Police Complaint (FIR) Drafter":
 # ------------------------------------------
 elif tool_choice == "6. Cheque Bounce Notice (Sec 138)":
     st.write("Draft a strict 15-day legal notice under the Negotiable Instruments Act.")
-    sender = st.text_input("Sender Name:")
-    defaulter = st.text_input("Defaulter Name:")
+    sender = st.text_input("Sender :")
+    defaulter = st.text_input("Defaulter :")
     cheque_details = st.text_input("Cheque No., Date, and Amount:")
     reason = st.text_input("Reason for Return (e.g., Funds Insufficient):")
     
@@ -209,7 +209,7 @@ elif tool_choice == "6. Cheque Bounce Notice (Sec 138)":
             Role: Corporate Lawyer in India.
             Task: Draft a mandatory legal notice under Section 138 of the Negotiable Instruments Act.
             Rules: The tone must be strict. Give the mandatory 15 days' time to make the payment.
-            Append text at the bottom: 'This notice MUST be sent via Registered Post. To ensure it is legally watertight and dispatched on Advocate Letterhead, contact Adv. [Your Name].'
+            Append text at the bottom: 'This notice MUST be sent via Registered Post. To ensure it is legally watertight and dispatched on Advocate Letterhead, contact Adv. Shobhit Tiwari.'
             
             Details: Sender: {sender}, Defaulter: {defaulter}, Cheque: {cheque_details}, Reason: {reason}.
             """
@@ -224,8 +224,8 @@ elif tool_choice == "7. UP Rent Agreement Maker":
     st.write("Generate an 11-month tenancy contract compliant with UP laws.")
     col1, col2 = st.columns(2)
     with col1:
-        landlord = st.text_input("Landlord Name:")
-        tenant = st.text_input("Tenant Name:")
+        landlord = st.text_input("Landlord :")
+        tenant = st.text_input("Tenant :")
     with col2:
         rent = st.text_input("Monthly Rent (₹):")
         deposit = st.text_input("Security Deposit (₹):")
@@ -271,4 +271,5 @@ elif tool_choice == "8. Traffic Challan Fighter":
 st.markdown("---")
 
 st.caption("⚠️ **Legal Disclaimer:** This platform provides automated drafts using Artificial Intelligence for educational and reference purposes only. It does not constitute formal legal advice. Always consult a registered advocate before submitting any document to a Court of Law or Police Station.")
+
 
