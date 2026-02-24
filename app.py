@@ -271,7 +271,3 @@ elif tool_choice == "8. Traffic Challan Fighter":
 st.markdown("---")
 
 st.caption("⚠️ **Legal Disclaimer:** This platform provides automated drafts using Artificial Intelligence for educational and reference purposes only. It does not constitute formal legal advice. Always consult a registered advocate before submitting any document to a Court of Law or Police Station.")
-
-
-
-
