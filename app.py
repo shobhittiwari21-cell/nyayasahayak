@@ -48,7 +48,7 @@ with st.sidebar:
 try:
     api_key = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('gemini-2.5-flash')
 except KeyError:
     st.error("⚠️ API Key missing! Please add GEMINI_API_KEY to your Streamlit secrets.")
     st.stop()
@@ -271,3 +271,4 @@ elif tool_choice == "8. Traffic Challan Fighter":
 st.markdown("---")
 
 st.caption("⚠️ **Legal Disclaimer:** This platform provides automated drafts using Artificial Intelligence for educational and reference purposes only. It does not constitute formal legal advice. Always consult a registered advocate before submitting any document to a Court of Law or Police Station.")
+
