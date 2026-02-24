@@ -36,9 +36,9 @@ with st.sidebar:
     st.markdown("---")
     # The "Client Magnet" Profile Card
     st.markdown("### 👨‍⚖️ Reviewed by")
-    st.success("**Adv. [Your Name]**\n\nHigh Court, Lucknow Bench")
-    st.write("📞 **[Your Phone Number]**")
-    st.write("✉️ **[Your Email]**")
+    st.success("**Adv. Shobhit Tiwari**\n\nHigh Court, Lucknow Bench")
+    st.write("📞 **+91 9795971160**")
+    st.write("✉️ **shobhittiwari21@gmail.com**")
     st.caption("Need expert filing or court representation? Book a consultation today.")
 
 # ==========================================
@@ -269,4 +269,5 @@ elif tool_choice == "8. Traffic Challan Fighter":
 # 5. GLOBAL DISCLAIMER
 # ==========================================
 st.markdown("---")
+
 st.caption("⚠️ **Legal Disclaimer:** This platform provides automated drafts using Artificial Intelligence for educational and reference purposes only. It does not constitute formal legal advice. Always consult a registered advocate before submitting any document to a Court of Law or Police Station.")
