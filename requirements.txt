@@ -1,2 +1,5 @@
 streamlit
 google-generativeai
+supabase
+resend
+requests
